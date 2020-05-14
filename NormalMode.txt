@@ -1,0 +1,105 @@
+
+
+Q.The Chief has asked us to host two static websites:
+
+    Set up Apache in the server. Create two web pages as follows and host them under the same URL soldier.io in your local server.
+        Page 1 which contains a soldier's profile at the path /username/index.html
+        Page 2 which displays the attendance records of the troops.
+
+    The chief has his own unique browser with a unique USER_AGENT string. We have to make sure that when the Chief tries to access soldier.io from his browser, 
+    he will  be shown page 2.
+
+    If anyone else tries to access the URL, they should be shown page 1 with the details of the user. This should be done by serving each user's page from a
+    different directory.
+
+
+cd /var/www/Task/Webpage
+sudo nano __init__.py
+
+Following code in __init__.py
+
+
+from flask import Flask, render_template, request
+app=Flask(__name__)
+
+Soldiers=['Army1', 'Navy1', 'Airforce1', 'Army2', 'Navy2', 'Airforce2', 'Army3', 'Navy3', 'Airforce3', 'Army4', 'Navy4', 'Airforce4', 'Army5', 'Navy5', 'Airforce5', 'Army6', 'Navy6', 'Airforce6', 'Army7', 'Navy7', 'Airforce7', 'Army8', 'Navy8', 'Airforce8', 'Army9', 'Navy9', 'Airforce9', 'Army10', 'Navy10', 'Airforce10', 'Army11', 'Navy11', 'Airforce11', 'Army12', 'Navy12', 'Airforce12', 'Army13', 'Navy13', 'Airforce13', 'Army14', 'Navy14', 'Airforce14', 'Army15', 'Navy15', 'Airforce15', 'Army16', 'Navy16', 'Airforce16', 'Army17', 'Navy17', 'Airforce17', 'Army18', 'Navy18', 'Airforce18', 'Army19', 'Navy19', 'Airforce19', 'Army20', 'Navy20', 'Airforce20', 'Army21', 'Navy21', 'Airforce21', 'Army22', 'Navy22', 'Airforce22', 'Army23', 'Navy23', 'Airforce23', 'Army24', 'Navy24', 'Airforce24', 'Army25', 'Navy25', 'Airforce25', 'Army26', 'Navy26', 'Airforce26', 'Army27', 'Navy27', 'Airforce27', 'Army28', 'Navy28', 'Airforce28', 'Army29', 'Navy29', 'Airforce29', 'Army30', 'Navy30', 'Airforce30', 'Army31', 'Navy31', 'Airforce31', 'Army32', 'Navy32', 'Airforce32', 'Army33', 'Navy33', 'Airforce33', 'Army34', 'Navy34', 'Airforce34', 'Army35', 'Navy35', 'Airforce35', 'Army36', 'Navy36', 'Airforce36', 'Army37', 'Navy37', 'Airforce37', 'Army38', 'Navy38', 'Airforce38', 'Army39', 'Navy39', 'Airforce39', 'Army40', 'Navy40', 'Airforce40', 'Army41', 'Navy41', 'Airforce41', 'Army42', 'Navy42', 'Airforce42', 'Army43', 'Navy43', 'Airforce43', 'Army44', 'Navy44', 'Airforce44', 'Army45', 'Navy45', 'Airforce45', 'Army46', 'Navy46', 'Airforce46', 'Army47', 'Navy47', 'Airforce47', 'Army48', 'Navy48', 'Airforce48', 'Army49', 'Navy49', 'Airforce49', 'Army50', 'Navy50', 'Airforce50']
+
+@app.route("/soldier.io")
+def home():
+    return "<h1>Welcome to home page!</h1>"
+
+
+
+@app.route("/soldier.io/<string:user>")
+def profile(user):
+    return render_template('index.html', user = user, len = len(Soldiers), Soldiers=Soldiers)
+
+if __name__=="__main__":
+    app.run(debug=True)
+------------------------------------------------
+
+
+cd /var/www/Task/Webpage/templates
+sudo nano index.html
+
+Following code in index.html
+
+
+<!DOCTYPE html>
+<html>
+   <head>
+        <title>{{ user }} profile</title>
+   </head>
+<body>
+{%if user in Soldiers: %}
+   <h2>{{ user }} profile</h2>
+   <p>Details</p>
+{% else: %}
+<h1>Page not found</h1>
+{% endif %}
+</body>
+</html>
+------------------------------------------------
+
+
+cd /var/www/Task
+sudo nano task.wsgi
+
+Following code in task.wsgi
+
+
+#!/usr/bin/python
+import sys
+import logging
+logging.basicConfig(stream=sys.stderr)
+sys.path.insert(0,"/var/www/Task/")
+
+from FlaskApp import app as application
+application.secret_key = 'task'
+------------------------------------------------
+
+
+cd /etc/apache2/sites-available
+sudo nano task.conf
+
+Following code in task.conf
+
+
+<VirtualHost *:80>
+		ServerName soldier.io
+		ServerAdmin admin@soldier.io
+		WSGIScriptAlias / /var/www/Task/task.wsgi
+		<Directory /var/www/Task/Webpage/>
+			Order allow,deny
+			Allow from all
+		</Directory>
+
+		ErrorLog ${APACHE_LOG_DIR}/error.log
+		LogLevel warn
+		CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost> 
+
+
+
+
+
