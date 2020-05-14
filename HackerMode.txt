@@ -1,0 +1,77 @@
+
+
+
+1.Create a database having a table with the following columns: id, username, complaint and time when complaint was filed.
+  Create a .sql file which will be used to create the required table in the database.
+
+Following code in mysql
+
+
+CREATE DATABASE dcomplaint;
+USE dcomplaint;
+CREATE TABLE tcomplaint (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(20) NOT NULL,
+    complaint VARCHAR(100) NOT NULL,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+---------------------------------------------------------
+
+
+2.Soldiers should be able to register their complaints regarding the problems they face.
+  Create a simple web page which may send the complaints to the database along with the username of the person who filed them.
+  It should work on the simple principle of HTTP requests.
+
+cd /var/www
+sudo mkdir complaints
+sudo nano __init1__.py
+
+Following code in __init1__.py
+
+
+from flask import Flask, request
+from flask_mysqldb import MySQL
+
+app = Flask(__name__)
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root1234'
+app.config['MYSQL_DB'] = 'stest1'
+
+mysql = MySQL(app)
+
+@app.route('/soldier.io/complaints', methods=['GET', 'POST'])
+def index():
+    if request.method == "POST":
+        details = request.form
+        un = details['uname']
+        cmpt = details['comp']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO tcomplaint(username, complaint) VALUES (%s, %s$
+        mysql.connection.commit()
+        cur.close()
+        return 'Your complaint is registered successfully!'
+    return """
+<HTML>
+<BODY>
+<form method="POST" action="">
+    <center>
+    <H1>Enter your complaint details </H1> <br>
+    <p>User Name : <input type = "text" name= "uname" /> <br>
+    <p>Complaint : <input type = "text" name = "comp" /> <br>
+    <p><input type = "submit">
+    </center>
+</form>
+</BODY>
+</HTML>
+         """
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+---------------------------------------------------------
+
+
+
